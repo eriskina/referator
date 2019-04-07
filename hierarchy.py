@@ -1,12 +1,61 @@
+import pymorphy2
 from constants import *
 
 class Предложение():
+    
+    def build_matrix(self):
+        data = []
+        n = 0
+        for part in self.pars_list:
+            for var in part:
+                try:
+                    data[n] += [var]
+                except IndexError:
+                    data += [[var]]
+            n += 1
+        return data
+    
+    def get_candidates(self):
+        max_h = max([ len(_) for _ in self.data ])
+        rez = []
+        for i in range(max_h):
+            cand = []
+            for j in range(len(self.data)):
+                try:
+                    cand += [self.data[j][i]]
+                except IndexError:
+                    cand += [self.data[j][0]]
+            rez += [cand]
+        return rez
+    
+    def get_sent_weight(self):
+        rez = []
+        for sent in self.sent_candidates:
+            w = 1
+            for pars in sent:
+                w = w * pars.score 
+            rez += [{'w':w, 'sent':sent}]
+        return rez
+    
+    def get_max_w(self):
+        rez = self.sent_candidates_w_weight[0]
+        return rez
+    
     def __init__(self, **kwargs):
-        pass
+        self.pars_list = kwargs['термы']
+        self.morph = pymorphy2.MorphAnalyzer()
+        self.tense = kwargs['время']
+
+        self.data = self.build_matrix()
+        self.sent_candidates = self.get_candidates()
+        self.sent_candidates_w_weight = self.get_sent_weight()
+        self.sentence = self.get_max_w()
 
 class Простое_предложение(Предложение):
-    pass
+    def __str__(self):
 
+        return str(self.sentence)
+    
 class Нераспространенное_предложение(Простое_предложение):
     pass
 
@@ -24,7 +73,6 @@ class Сложно_подчиненное_предложение(Нераспр�
 
 
 def test():
-    import pymorphy2
     pm = pymorphy2.MorphAnalyzer()
     мама, мыть, рама = pm.parse('мама'),pm.parse('мыть'),pm.parse('рама'),
     мама_мыла_раму = Простое_предложение(
@@ -33,6 +81,7 @@ def test():
             числа = [1,1],
             вид = Несовершенный
         )
+    print (мама_мыла_раму)
 
 #    мама_мыла_белую_раму = Распространенное_предложение(
 #            термы = [мама, мыть, белый, рама],
