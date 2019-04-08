@@ -1,15 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr  6 16:24:18 2019
 
-@author: ekaterina
-"""
-
-#    def __init__(self, data):
-#        self.data1 = data[1][0][1]
-#        self.data2 = forms[data[0]]['н.в.']
-#        self.data3 = forms[data[1][0][0]]['твор.']
         
 class Предложение_определение():
     # X это Y

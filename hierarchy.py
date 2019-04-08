@@ -1,6 +1,8 @@
 import pymorphy2
 from constants import *
 
+morph = pymorphy2.MorphAnalyzer()
+
 class Предложение():
     
     def build_matrix(self):
@@ -15,7 +17,7 @@ class Предложение():
             n += 1
         return data
     
-    def get_candidates(self):
+    def get_candidates(self): #нужны все комбинации всех элементов списка
         max_h = max([ len(_) for _ in self.data ])
         rez = []
         for i in range(max_h):
@@ -41,6 +43,14 @@ class Предложение():
         rez = self.sent_candidates_w_weight[0]
         return rez
     
+    def make_agree(self):
+        rez = []
+        mama = morph.parse('мама')[0]
+        myt = morph.parse('мыть')[0]
+        rama = morph.parse('рама')[1]
+        rez = mama.inflect({'nomn'}), myt.inflect({'past', 'femn'}), rama.inflect({'accs'})
+        return rez      
+    
     def __init__(self, **kwargs):
         self.pars_list = kwargs['термы']
         self.morph = pymorphy2.MorphAnalyzer()
@@ -50,11 +60,12 @@ class Предложение():
         self.sent_candidates = self.get_candidates()
         self.sent_candidates_w_weight = self.get_sent_weight()
         self.sentence = self.get_max_w()
+        self.sentence_agree = self.make_agree()
 
 class Простое_предложение(Предложение):
     def __str__(self):
 
-        return str(self.sentence)
+        return str(self.sentence_agree)
     
 class Нераспространенное_предложение(Простое_предложение):
     pass
@@ -73,8 +84,7 @@ class Сложно_подчиненное_предложение(Нераспр�
 
 
 def test():
-    pm = pymorphy2.MorphAnalyzer()
-    мама, мыть, рама = pm.parse('мама'),pm.parse('мыть'),pm.parse('рама'),
+    мама, мыть, рама = morph.parse('мама'),morph.parse('мыть'),morph.parse('рама'),
     мама_мыла_раму = Простое_предложение(
             термы = [мама, мыть, рама], 
             время = Прошедшее,
